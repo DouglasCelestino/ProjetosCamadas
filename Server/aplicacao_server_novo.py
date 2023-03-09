@@ -8,7 +8,7 @@ from Complementar import *
 #   para saber a sua porta, execute no terminal :
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
-serialName = "COM3"                  # Windows(variacao de)
+serialName = "COM5"                  # Windows(variacao de)
 
 def main():
     try:
@@ -73,15 +73,20 @@ def main():
         while i < total_pacotes:
             print('Recebendo pacote {}'.format(i))
             tipo_pacote = com3.getData(1)[0]
+            print(tipo_pacote) #passou aq
             tamanho_pacote = int.from_bytes(com3.getData(1)[0], byteorder='big')
             numero_pacote = int.from_bytes(com3.getData(1)[0], byteorder='big')
             total_pacotes = int.from_bytes(com3.getData(1)[0], byteorder='big')
-            com3.getData(tamanho_pacote - 4)
+            print(com3.getData(8)) #chegou aq
 
             if numero_pacote == esperado:
+                print('entrei')
                 payload = com3.getData(tamanho_pacote - 15)[0]
+                print(payload)
                 nova_imagem += payload
-                if com3.getData(3) == b'\xff\xff\xff':
+    
+                soma = int.from_bytes(com3.getData(1)[0]) + int.from_bytes(com3.getData(1)[0]) + int.from_bytes(com3.getData(1)[0])
+                if soma == (255*3):
                     print('Pacote {} recebido com sucesso'.format(i))
                     print('')
                     esperado += 1
