@@ -71,21 +71,25 @@ def main():
         total_pacotes = 10
         i=0
         while i < total_pacotes:
-            print('Recebendo pacote {}'.format(i))
+            print("i: {}".format(i))
+            print('Recebendo pacote {}'.format(i+1))
             tipo_pacote = com3.getData(1)[0]
-            print(tipo_pacote) #passou aq
             tamanho_pacote = int.from_bytes(com3.getData(1)[0], byteorder='big')
+            print("Tamanho do pacote: {}".format(tamanho_pacote)) 
             numero_pacote = int.from_bytes(com3.getData(1)[0], byteorder='big')
             total_pacotes = int.from_bytes(com3.getData(1)[0], byteorder='big')
-            print(com3.getData(8)) #chegou aq
+            print("Total de pacotes: {}".format(total_pacotes))
+            com3.getData(8) #chegou aq
 
             if numero_pacote == esperado:
-                print('entrei')
                 payload = com3.getData(tamanho_pacote - 15)[0]
-                print(payload)
+                print(f"Payload recebido: \n{bytearray(payload)}")
+                # print(f"Payload recebido: \n{payload}")
+                # print(len(payload))
                 nova_imagem += payload
-    
+            
                 soma = int.from_bytes(com3.getData(1)[0]) + int.from_bytes(com3.getData(1)[0]) + int.from_bytes(com3.getData(1)[0])
+                
                 if soma == (255*3):
                     print('Pacote {} recebido com sucesso'.format(i))
                     print('')
@@ -93,9 +97,9 @@ def main():
                     i += 1
 
                     # Head = [tipo, tamanho, numero, total]
-                    head = [b'\x00', b'\x0f', b'\x00', b'\x01']
+                    head = [b'\x00', b'\x10', b'\x00', b'\x01']
                     head += [b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00']
-                    txBuffer += head
+                    txBuffer = head
                     # Payload
                     payload = [b'\x00']
                     txBuffer += payload
@@ -103,13 +107,15 @@ def main():
                     eop = [b'\xff', b'\xff', b'\xff']
                     txBuffer += eop
                     com3.sendData(np.asarray(txBuffer))
+                    time.sleep(1)
 
                 else:
                     print('Pacote {} não recebido'.format(i))
+                    print("Erro end of package")
                     print('')
 
                     # Head = [tipo, tamanho, numero, total]
-                    head = [b'\x00', b'\x0f', b'\x00', b'\x01']
+                    head = [b'\x00', b'\x10', b'\x00', b'\x01']
                     head += [b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00']
                     txBuffer += head
                     # Payload
@@ -119,12 +125,15 @@ def main():
                     eop = [b'\xff', b'\xff', b'\xff']
                     txBuffer += eop
                     com3.sendData(np.asarray(txBuffer))
+                    time.sleep(1)
                     print('Encerrando comunicação')
                     com3.disable()
                     exit()
             else:
+                print("Pacote com erro")
+                print('erro tamanho do pacote')
                 # Head = [tipo, tamanho, numero, total]
-                head = [b'\x00', b'\x0f', b'\x00', b'\x01']
+                head = [b'\x00', b'\x10', b'\x00', b'\x01']
                 head += [b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00']
                 txBuffer += head
                 # Payload
@@ -134,13 +143,10 @@ def main():
                 eop = [b'\xff', b'\xff', b'\xff']
                 txBuffer += eop
                 com3.sendData(np.asarray(txBuffer))
+                time.sleep(1)
                 print('Encerrando comunicação')
                 com3.disable()
                 exit()
-            
-
-
-
 
         #############################################
     
